@@ -1,103 +1,197 @@
-import Image from "next/image";
+"use client";
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { calculateAOAFee } from "@/lib/calculateFees";
+import { getStampDuty } from "@/lib/loadStampDutyRates";
+import { entityOptions, entityTypeMap } from "@/lib/entityTypeMap";
 
-export default function Home() {
+const states = Object.keys(require("@/data/stampDutyRates.json"));
+const PAN_FEE = 66;
+const TAN_FEE = 77;
+
+export default function FeeCalculator() {
+  const [state, setState] = useState("Delhi");
+  const [entity, setEntity] = useState("Private Limited Company");
+  const [capital, setCapital] = useState(100000);
+  const [includePAN, setIncludePAN] = useState(true);
+  const [includeTAN, setIncludeTAN] = useState(true);
+  const [includeDIN, setIncludeDIN] = useState(false);
+  const [numDirectors, setNumDirectors] = useState(2);
+
+  const [fees, setFees] = useState({
+    spice: 0,
+    moa: 0,
+    aoa: 0,
+    pan: 0,
+    tan: 0,
+    din: 0,
+    professional: 5000,
+    gst: 0,
+    total: 0,
+  });
+
+  useEffect(() => {
+    const mappedType = entityTypeMap[entity];
+    const data = getStampDuty(state, mappedType);
+    if (!data) return;
+
+    const fallbackType =
+      mappedType === "section-8"
+        ? capital > 0
+          ? "share-capital"
+          : "no-share-capital"
+        : mappedType;
+
+    const fallbackData = getStampDuty(state, fallbackType);
+
+    const aoaFee = calculateAOAFee(
+      data.aoa,
+      capital,
+      data.spice,
+      fallbackData?.aoa
+    );
+    const dinFee = includeDIN ? numDirectors * 500 : 0;
+    const panFee = includePAN ? PAN_FEE : 0;
+    const tanFee = includeTAN ? TAN_FEE : 0;
+    const prof = 5000;
+    const gst = 0.18 * (prof + dinFee + panFee + tanFee);
+    const total =
+      data.spice +
+      data.moa +
+      aoaFee +
+      prof +
+      panFee +
+      tanFee +
+      dinFee +
+      gst;
+
+    setFees({
+      spice: data.spice,
+      moa: data.moa,
+      aoa: aoaFee,
+      din: dinFee,
+      pan: panFee,
+      tan: tanFee,
+      professional: prof,
+      gst,
+      total,
+    });
+  }, [
+    state,
+    entity,
+    capital,
+    includeDIN,
+    numDirectors,
+    includePAN,
+    includeTAN,
+  ]);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="max-w-xl mx-auto space-y-4 p-4">
+      <h2 className="text-2xl font-semibold">
+        MCA Incorporation Fee Calculator
+      </h2>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <div className="space-y-2">
+        <Label>State</Label>
+        <Select value={state} onValueChange={setState}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select state" />
+          </SelectTrigger>
+          <SelectContent>
+            {states.map((st) => (
+              <SelectItem key={st} value={st}>
+                {st}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Entity Type</Label>
+        <Select value={entity} onValueChange={setEntity}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {entityOptions.map((e) => (
+              <SelectItem key={e} value={e}>
+                {e}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {entity !== "Section 8 Company" && (
+        <div className="space-y-2">
+          <Label>Authorized Capital (₹)</Label>
+          <Input
+            type="number"
+            value={capital}
+            onChange={(e) => setCapital(Number(e.target.value))}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      )}
+
+      <div className="flex items-center gap-2">
+        <Checkbox
+          checked={includePAN}
+          onCheckedChange={(checked) => setIncludePAN(Boolean(checked))}
+        />{" "}
+        <Label>Include PAN (₹{PAN_FEE})</Label>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Checkbox
+          checked={includeTAN}
+          onCheckedChange={(checked) => setIncludeTAN(Boolean(checked))}
+        />{" "}
+        <Label>Include TAN (₹{TAN_FEE})</Label>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Checkbox
+          checked={includeDIN}
+          onCheckedChange={(checked) => setIncludeDIN(Boolean(checked))}
+        />{" "}
+        <Label>DIN (₹500 per director)</Label>
+      </div>
+
+      {includeDIN && (
+        <div className="space-y-2">
+          <Label>Number of Directors</Label>
+          <Input
+            type="number"
+            value={numDirectors}
+            onChange={(e) => setNumDirectors(Number(e.target.value))}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+      )}
+
+      <div className="mt-6 space-y-1 border-t pt-4">
+        <p>SPICe: ₹{fees.spice}</p>
+        <p>MOA: ₹{fees.moa}</p>
+        <p>AOA: ₹{fees.aoa.toFixed(2)}</p>
+        {includePAN && <p>PAN: ₹{fees.pan}</p>}
+        {includeTAN && <p>TAN: ₹{fees.tan}</p>}
+        {includeDIN && <p>DIN: ₹{fees.din}</p>}
+        <p>Professional Fee: ₹{fees.professional}</p>
+        <p>GST (18%): ₹{fees.gst.toFixed(2)}</p>
+        <p className="font-bold text-lg">
+          Total Estimated Fee: ₹{fees.total.toFixed(2)}
+        </p>
+      </div>
     </div>
   );
 }

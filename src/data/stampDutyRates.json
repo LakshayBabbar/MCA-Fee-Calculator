@@ -1,0 +1,718 @@
+{
+  "Delhi": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 200,
+      "aoa": {
+        "type": "percentage",
+        "rate": 0.0015,
+        "max": 2500000
+      }
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 200,
+      "aoa": 200
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Haryana": {
+    "share-capital": {
+      "spice": 15,
+      "moa": 60,
+      "aoa": {
+        "type": "conditional",
+        "condition": 100000,
+        "below": 60,
+        "above": 120
+      }
+    },
+    "no-share-capital": {
+      "spice": 15,
+      "moa": 60,
+      "aoa": 60
+    },
+    "section-8": {
+      "spice": 15,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Maharashtra": {
+    "share-capital": {
+      "spice": 100,
+      "moa": 200,
+      "aoa": {
+        "type": "slab",
+        "per": 500000,
+        "rate": 1000,
+        "max": 5000000
+      }
+    },
+    "no-share-capital": {
+      "spice": 100,
+      "moa": 0,
+      "aoa": 0
+    },
+    "section-8": {
+      "spice": 100,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Odisha": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 300,
+      "aoa": 300
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 300,
+      "aoa": 300
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": 300,
+      "aoa": 300
+    }
+  },
+  "Andhra Pradesh": {
+    "share-capital": {
+      "spice": 20,
+      "moa": 500,
+      "aoa": {
+        "type": "percentage",
+        "rate": 0.0015,
+        "min": 1000,
+        "max": 500000
+      }
+    },
+    "no-share-capital": {
+      "spice": 20,
+      "moa": 500,
+      "aoa": 1000
+    },
+    "section-8": {
+      "spice": 20,
+      "moa": 500,
+      "aoa": {
+        "type": "same_as_base"
+      }
+    }
+  },
+  "Telangana": {
+    "share-capital": {
+      "spice": 20,
+      "moa": 500,
+      "aoa": {
+        "type": "percentage",
+        "rate": 0.0015,
+        "min": 1000,
+        "max": 500000
+      }
+    },
+    "no-share-capital": {
+      "spice": 20,
+      "moa": 500,
+      "aoa": 1000
+    },
+    "section-8": {
+      "spice": 20,
+      "moa": 500,
+      "aoa": {
+        "type": "same_as_base"
+      }
+    }
+  },
+  "Bihar": {
+    "share-capital": {
+      "spice": 20,
+      "moa": 500,
+      "aoa": {
+        "type": "percentage",
+        "rate": 0.0015,
+        "min": 1000,
+        "max": 500000
+      }
+    },
+    "no-share-capital": {
+      "spice": 20,
+      "moa": 500,
+      "aoa": 1000
+    },
+    "section-8": {
+      "spice": 20,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Jharkhand": {
+    "share-capital": {
+      "spice": 5,
+      "moa": 63,
+      "aoa": 105
+    },
+    "no-share-capital": {
+      "spice": 5,
+      "moa": 63,
+      "aoa": 105
+    },
+    "section-8": {
+      "spice": 5,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Jammu and Kashmir": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 150,
+      "aoa": {
+        "type": "conditional",
+        "condition": 100000,
+        "below": 150,
+        "above": 300
+      }
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 150,
+      "aoa": 150
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Tamil Nadu": {
+    "share-capital": {
+      "spice": 20,
+      "moa": 200,
+      "aoa": {
+        "type": "slab",
+        "per": 1000000,
+        "rate": 500,
+        "max": 500000
+      }
+    },
+    "no-share-capital": {
+      "spice": 20,
+      "moa": 200,
+      "aoa": 500
+    },
+    "section-8": {
+      "spice": 20,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Puducherry": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 200,
+      "aoa": 300
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 200,
+      "aoa": 300
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Assam": {
+    "share-capital": {
+      "spice": 15,
+      "moa": 200,
+      "aoa": 310
+    },
+    "no-share-capital": {
+      "spice": 15,
+      "moa": 200,
+      "aoa": 310
+    },
+    "section-8": {
+      "spice": 15,
+      "moa": 200,
+      "aoa": 310
+    }
+  },
+  "Meghalaya": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 300
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 300
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 300
+    }
+  },
+  "Manipur": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 150
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 150
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 150
+    }
+  },
+  "Nagaland": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 150
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 150
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 150
+    }
+  },
+  "Tripura": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 150
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 150
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 150
+    }
+  },
+  "Arunachal Pradesh": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 200,
+      "aoa": 500
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 200,
+      "aoa": 500
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": 200,
+      "aoa": 500
+    }
+  },
+  "Mizoram": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 150
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 150
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": 100,
+      "aoa": 150
+    }
+  },
+  "Kerala": {
+    "share-capital": {
+      "spice": 25,
+      "moa": 500,
+      "aoa": {
+        "type": "tiered",
+        "tiers": [
+          {
+            "max": 1000000,
+            "rate": 2000
+          },
+          {
+            "max": 2500000,
+            "rate": 5000
+          },
+          {
+            "above": 2500000,
+            "rate": 0.005
+          }
+        ]
+      }
+    },
+    "no-share-capital": {
+      "spice": 25,
+      "moa": 1000,
+      "aoa": 2000
+    },
+    "section-8": {
+      "spice": 25,
+      "moa": 1000,
+      "aoa": {
+        "type": "same_as_base"
+      }
+    }
+  },
+  "Lakshadweep": {
+    "share-capital": {
+      "spice": 25,
+      "moa": 500,
+      "aoa": 1000
+    },
+    "no-share-capital": {
+      "spice": 25,
+      "moa": 500,
+      "aoa": 1000
+    },
+    "section-8": {
+      "spice": 25,
+      "moa": 500,
+      "aoa": 1000
+    }
+  },
+  "Madhya Pradesh": {
+    "share-capital": {
+      "spice": 50,
+      "moa": 2500,
+      "aoa": {
+        "type": "percentage",
+        "rate": 0.0015,
+        "min": 5000,
+        "max": 2500000
+      }
+    },
+    "no-share-capital": {
+      "spice": 50,
+      "moa": 2500,
+      "aoa": 5000
+    },
+    "section-8": {
+      "spice": 50,
+      "moa": 2500,
+      "aoa": {
+        "type": "same_as_base"
+      }
+    }
+  },
+  "Chhattisgarh": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 500,
+      "aoa": {
+        "type": "percentage",
+        "rate": 0.0015,
+        "min": 1000,
+        "max": 500000
+      }
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 500,
+      "aoa": 1000
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Rajasthan": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 500,
+      "aoa": {
+        "type": "percentage",
+        "rate": 0.0015,
+        "min": 5000,
+        "max": 2500000
+      }
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 500,
+      "aoa": 500
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": 500,
+      "aoa": 0
+    }
+  },
+  "Punjab": {
+    "share-capital": {
+      "spice": 25,
+      "moa": 5000,
+      "aoa": {
+        "type": "conditional",
+        "condition": 100000,
+        "below": 5000,
+        "above": 10000
+      }
+    },
+    "no-share-capital": {
+      "spice": 25,
+      "moa": 5000,
+      "aoa": 5000
+    },
+    "section-8": {
+      "spice": 25,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Himachal Pradesh": {
+    "share-capital": {
+      "spice": 3,
+      "moa": 60,
+      "aoa": {
+        "type": "conditional",
+        "condition": 100000,
+        "below": 60,
+        "above": 120
+      }
+    },
+    "no-share-capital": {
+      "spice": 3,
+      "moa": 60,
+      "aoa": 60
+    },
+    "section-8": {
+      "spice": 3,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Chandigarh": {
+    "share-capital": {
+      "spice": 3,
+      "moa": 500,
+      "aoa": 1000
+    },
+    "no-share-capital": {
+      "spice": 3,
+      "moa": 500,
+      "aoa": 1000
+    },
+    "section-8": {
+      "spice": 3,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Uttar Pradesh": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 500,
+      "aoa": 500
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 500,
+      "aoa": 500
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": {
+        "type": "conditional_company_type",
+        "share_capital": 500,
+        "no_share_capital": 0
+      },
+      "aoa": {
+        "type": "conditional_company_type",
+        "share_capital": 500,
+        "no_share_capital": 0
+      }
+    }
+  },
+  "Uttarakhand": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 500,
+      "aoa": 500
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 500,
+      "aoa": 500
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": {
+        "type": "conditional_company_type",
+        "share_capital": 500,
+        "no_share_capital": 0
+      },
+      "aoa": {
+        "type": "conditional_company_type",
+        "share_capital": 500,
+        "no_share_capital": 0
+      }
+    }
+  },
+  "West Bengal": {
+    "share-capital": {
+      "spice": 10,
+      "moa": 60,
+      "aoa": 300
+    },
+    "no-share-capital": {
+      "spice": 10,
+      "moa": 60,
+      "aoa": 300
+    },
+    "section-8": {
+      "spice": 10,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Karnataka": {
+    "share-capital": {
+      "spice": 20,
+      "moa": 5000,
+      "aoa": {
+        "type": "slab",
+        "per": 1000000,
+        "rate": 1000,
+        "max": 5000000
+      }
+    },
+    "no-share-capital": {
+      "spice": 20,
+      "moa": 5000,
+      "aoa": 5000
+    },
+    "section-8": {
+      "spice": 20,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Gujarat": {
+    "share-capital": {
+      "spice": 20,
+      "moa": 100,
+      "aoa": {
+        "type": "percentage",
+        "rate": 0.005,
+        "max": 500000
+      }
+    },
+    "no-share-capital": {
+      "spice": 20,
+      "moa": 300,
+      "aoa": 1000
+    },
+    "section-8": {
+      "spice": 20,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Dadra and Nagar Haveli": {
+    "share-capital": {
+      "spice": 1,
+      "moa": 15,
+      "aoa": 25
+    },
+    "no-share-capital": {
+      "spice": 1,
+      "moa": 15,
+      "aoa": 25
+    },
+    "section-8": {
+      "spice": 1,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Goa": {
+    "share-capital": {
+      "spice": 50,
+      "moa": 150,
+      "aoa": {
+        "type": "slab",
+        "per": 500000,
+        "rate": 1000
+      }
+    },
+    "no-share-capital": {
+      "spice": 50,
+      "moa": 150,
+      "aoa": 1000
+    },
+    "section-8": {
+      "spice": 50,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Daman and Diu": {
+    "share-capital": {
+      "spice": 20,
+      "moa": 150,
+      "aoa": {
+        "type": "slab",
+        "per": 500000,
+        "rate": 1000
+      }
+    },
+    "no-share-capital": {
+      "spice": 20,
+      "moa": 150,
+      "aoa": 1000
+    },
+    "section-8": {
+      "spice": 20,
+      "moa": 0,
+      "aoa": 0
+    }
+  },
+  "Andaman and Nicobar": {
+    "share-capital": {
+      "spice": 20,
+      "moa": 200,
+      "aoa": 300
+    },
+    "no-share-capital": {
+      "spice": 20,
+      "moa": 200,
+      "aoa": 300
+    },
+    "section-8": {
+      "spice": 20,
+      "moa": 0,
+      "aoa": 0
+    }
+  }
+}
