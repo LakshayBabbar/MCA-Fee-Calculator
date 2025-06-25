@@ -16,7 +16,7 @@ import { entityOptions, entityTypeMap } from "@/lib/entityTypeMap";
 
 const states = Object.keys(require("@/data/stampDutyRates.json"));
 const PAN_FEE = 66;
-const TAN_FEE = 77;
+const TAN_FEE = 65;
 
 export default function FeeCalculator() {
   const [state, setState] = useState("Delhi");
@@ -65,14 +65,7 @@ export default function FeeCalculator() {
     const prof = 5000;
     const gst = 0.18 * (prof + dinFee + panFee + tanFee);
     const total =
-      data.spice +
-      data.moa +
-      aoaFee +
-      prof +
-      panFee +
-      tanFee +
-      dinFee +
-      gst;
+      data.spice + data.moa + aoaFee + prof + panFee + tanFee + dinFee + gst;
 
     setFees({
       spice: data.spice,
@@ -96,101 +89,103 @@ export default function FeeCalculator() {
   ]);
 
   return (
-    <div className="max-w-xl mx-auto space-y-4 p-4">
-      <h2 className="text-2xl font-semibold">
-        MCA Incorporation Fee Calculator
-      </h2>
+    <div className="flex flex-col items-center justify-center min-h-screen sm:bg-gray-50">
+      <div className="space-y-4 p-6 sm:drop-shadow-lg sm:rounded-2xl bg-white my-6">
+        <h2 className="mb-4 text-3xl text-center font-serif font-light">
+          MCA Incorporation Fee Calculator
+        </h2>
 
-      <div className="space-y-2">
-        <Label>State</Label>
-        <Select value={state} onValueChange={setState}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select state" />
-          </SelectTrigger>
-          <SelectContent>
-            {states.map((st) => (
-              <SelectItem key={st} value={st}>
-                {st}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Entity Type</Label>
-        <Select value={entity} onValueChange={setEntity}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {entityOptions.map((e) => (
-              <SelectItem key={e} value={e}>
-                {e}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {entity !== "Section 8 Company" && (
         <div className="space-y-2">
-          <Label>Authorized Capital (₹)</Label>
-          <Input
-            type="number"
-            value={capital}
-            onChange={(e) => setCapital(Number(e.target.value))}
-          />
+          <Label>State</Label>
+          <Select value={state} onValueChange={setState}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select state" />
+            </SelectTrigger>
+            <SelectContent>
+              {states.map((st) => (
+                <SelectItem key={st} value={st}>
+                  {st}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      )}
 
-      <div className="flex items-center gap-2">
-        <Checkbox
-          checked={includePAN}
-          onCheckedChange={(checked) => setIncludePAN(Boolean(checked))}
-        />{" "}
-        <Label>Include PAN (₹{PAN_FEE})</Label>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <Checkbox
-          checked={includeTAN}
-          onCheckedChange={(checked) => setIncludeTAN(Boolean(checked))}
-        />{" "}
-        <Label>Include TAN (₹{TAN_FEE})</Label>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <Checkbox
-          checked={includeDIN}
-          onCheckedChange={(checked) => setIncludeDIN(Boolean(checked))}
-        />{" "}
-        <Label>DIN (₹500 per director)</Label>
-      </div>
-
-      {includeDIN && (
         <div className="space-y-2">
-          <Label>Number of Directors</Label>
-          <Input
-            type="number"
-            value={numDirectors}
-            onChange={(e) => setNumDirectors(Number(e.target.value))}
-          />
+          <Label>Entity Type</Label>
+          <Select value={entity} onValueChange={setEntity}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {entityOptions.map((e) => (
+                <SelectItem key={e} value={e}>
+                  {e}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      )}
 
-      <div className="mt-6 space-y-1 border-t pt-4">
-        <p>SPICe: ₹{fees.spice}</p>
-        <p>MOA: ₹{fees.moa}</p>
-        <p>AOA: ₹{fees.aoa.toFixed(2)}</p>
-        {includePAN && <p>PAN: ₹{fees.pan}</p>}
-        {includeTAN && <p>TAN: ₹{fees.tan}</p>}
-        {includeDIN && <p>DIN: ₹{fees.din}</p>}
-        <p>Professional Fee: ₹{fees.professional}</p>
-        <p>GST (18%): ₹{fees.gst.toFixed(2)}</p>
-        <p className="font-bold text-lg">
-          Total Estimated Fee: ₹{fees.total.toFixed(2)}
-        </p>
+        {entity !== "Section 8 Company" && (
+          <div className="space-y-2">
+            <Label>Authorized Capital (₹)</Label>
+            <Input
+              type="number"
+              value={capital}
+              onChange={(e) => setCapital(Number(e.target.value))}
+            />
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
+          <Checkbox
+            checked={includePAN}
+            onCheckedChange={(checked) => setIncludePAN(Boolean(checked))}
+          />{" "}
+          <Label>Include PAN (₹{PAN_FEE})</Label>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Checkbox
+            checked={includeTAN}
+            onCheckedChange={(checked) => setIncludeTAN(Boolean(checked))}
+          />{" "}
+          <Label>Include TAN (₹{TAN_FEE})</Label>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Checkbox
+            checked={includeDIN}
+            onCheckedChange={(checked) => setIncludeDIN(Boolean(checked))}
+          />{" "}
+          <Label>DIN (₹500 per director)</Label>
+        </div>
+
+        {includeDIN && (
+          <div className="space-y-2">
+            <Label>Number of Directors</Label>
+            <Input
+              type="number"
+              value={numDirectors}
+              onChange={(e) => setNumDirectors(Number(e.target.value))}
+            />
+          </div>
+        )}
+
+        <div className="mt-6 space-y-1 border-t pt-4">
+          <p>SPICe: ₹{fees.spice}</p>
+          <p>MOA: ₹{fees.moa}</p>
+          <p>AOA: ₹{fees.aoa.toFixed(2)}</p>
+          {includePAN && <p>PAN: ₹{fees.pan}</p>}
+          {includeTAN && <p>TAN: ₹{fees.tan}</p>}
+          {includeDIN && <p>DIN: ₹{fees.din}</p>}
+          <p>Professional Fee: ₹{fees.professional}</p>
+          <p>GST (18%): ₹{fees.gst.toFixed(2)}</p>
+          <p className="font-bold text-lg">
+            Total Estimated Fee: ₹{fees.total.toFixed(2)}
+          </p>
+        </div>
       </div>
     </div>
   );
