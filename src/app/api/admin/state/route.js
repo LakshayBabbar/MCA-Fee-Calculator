@@ -13,13 +13,3 @@ export const POST = async (req, res) => {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 };
-
-export const GET = async (req, res) => {
-  try {
-    await connectToDb();
-    const data = await StampDutyRate.find().lean();
-    return NextResponse.json(data, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-};

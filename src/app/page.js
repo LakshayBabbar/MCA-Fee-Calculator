@@ -16,9 +16,6 @@ import { toast } from "sonner";
 import { calculateAOAFee } from "@/lib/calculateFees";
 import { entityOptions, entityTypeMap } from "@/lib/entityTypeMap";
 
-const PAN_FEE = 66;
-const TAN_FEE = 65;
-const DIN_FEE_PER_DIRECTOR = 500;
 const GST_RATE = 0.18;
 
 export default function FeeCalculator() {
@@ -29,19 +26,40 @@ export default function FeeCalculator() {
     "Private Limited Company"
   );
   const [authorizedCapital, setAuthorizedCapital] = useState(100000);
-  const [includePAN, setIncludePAN] = useState(true);
-  const [includeTAN, setIncludeTAN] = useState(true);
-  const [includeDIN, setIncludeDIN] = useState(false);
+  const [includePAN, setIncludePAN] = useState({
+    checked: false,
+    fee: 0,
+  });
+  const [includeTAN, setIncludeTAN] = useState({
+    checked: false,
+    fee: 0,
+  });
+  const [includeDIN, setIncludeDIN] = useState({
+    checked: false,
+    fee: 0,
+  });
   const [numDirectors, setNumDirectors] = useState(2);
   const [professionalFee, setProfessionalFee] = useState(5000);
 
   const fetchStates = async () => {
     try {
-      const res = await fetch("/api/state");
+      const res = await fetch("/api/");
       if (!res.ok) throw new Error("Failed to fetch state list");
       const json = await res.json();
-      setMcaData(json);
-      setStates(json.map((s) => s.state));
+      setMcaData(json.stampDutyRate);
+      setStates(json.stampDutyRate.map((s) => s.state));
+
+      json.otherFee.forEach((fee) => {
+        if (fee.name === "pan") {
+          setIncludePAN((prev) => ({ ...prev, fee: fee.fee }));
+        }
+        if (fee.name === "tan") {
+          setIncludeTAN((prev) => ({ ...prev, fee: fee.fee }));
+        }
+        if (fee.name === "din") {
+          setIncludeDIN((prev) => ({ ...prev, fee: fee.fee }));
+        }
+      });
     } catch (error) {
       console.error("State Fetch Error:", error);
       toast.error("Unable to load states. Please try again.");
@@ -62,10 +80,10 @@ export default function FeeCalculator() {
     if (!selectedData) return null;
 
     const aoaFee = calculateAOAFee(selectedData.aoa, authorizedCapital);
-    const dinFee = includeDIN ? numDirectors * DIN_FEE_PER_DIRECTOR : 0;
-    const panFee = includePAN ? PAN_FEE : 0;
-    const tanFee = includeTAN ? TAN_FEE : 0;
-    const gst = GST_RATE * (professionalFee + dinFee + panFee + tanFee);
+    const dinFee = includeDIN.checked ? numDirectors * includeDIN.fee : 0;
+    const panFee = includePAN.checked ? includePAN.fee : 0;
+    const tanFee = includeTAN.checked ? includeTAN.fee : 0;
+    const gst = GST_RATE * professionalFee;
     const total =
       selectedData.spice +
       selectedData.moa +
@@ -162,29 +180,44 @@ export default function FeeCalculator() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex items-center space-x-2">
               <Checkbox
-                checked={includePAN}
-                onCheckedChange={(val) => setIncludePAN(Boolean(val))}
+                checked={includePAN.checked}
+                onCheckedChange={(val) =>
+                  setIncludePAN((prev) => ({
+                    ...prev,
+                    checked: Boolean(val),
+                  }))
+                }
               />
-              <Label>Include PAN (₹{PAN_FEE})</Label>
+              <Label>Include PAN (₹{includePAN.fee})</Label>
             </div>
 
             <div className="flex items-center space-x-2">
               <Checkbox
-                checked={includeTAN}
-                onCheckedChange={(val) => setIncludeTAN(Boolean(val))}
+                checked={includeTAN.checked}
+                onCheckedChange={(val) =>
+                  setIncludeTAN((prev) => ({
+                    ...prev,
+                    checked: Boolean(val),
+                  }))
+                }
               />
-              <Label>Include TAN (₹{TAN_FEE})</Label>
+              <Label>Include TAN (₹{includeTAN.fee})</Label>
             </div>
 
             <div className="flex items-center space-x-2">
               <Checkbox
-                checked={includeDIN}
-                onCheckedChange={(val) => setIncludeDIN(Boolean(val))}
+                checked={includeDIN.checked}
+                onCheckedChange={(val) =>
+                  setIncludeDIN((prev) => ({
+                    ...prev,
+                    checked: Boolean(val),
+                  }))
+                }
               />
-              <Label>DIN (₹{DIN_FEE_PER_DIRECTOR}/director)</Label>
+              <Label>DIN (₹{includeDIN.fee}/director)</Label>
             </div>
 
-            {includeDIN && (
+            {includeDIN.checked && (
               <div className="space-y-2 col-span-full">
                 <Label>Number of Directors</Label>
                 <Input
@@ -202,9 +235,9 @@ export default function FeeCalculator() {
               <p>SPICe: ₹{feeBreakdown.spice}</p>
               <p>MOA: ₹{feeBreakdown.moa}</p>
               <p>AOA: ₹{feeBreakdown.aoa.toFixed(2)}</p>
-              {includePAN && <p>PAN: ₹{feeBreakdown.pan}</p>}
-              {includeTAN && <p>TAN: ₹{feeBreakdown.tan}</p>}
-              {includeDIN && <p>DIN: ₹{feeBreakdown.din}</p>}
+              {includePAN.checked && <p>PAN: ₹{feeBreakdown.pan}</p>}
+              {includeTAN.checked && <p>TAN: ₹{feeBreakdown.tan}</p>}
+              {includeDIN.checked && <p>DIN: ₹{feeBreakdown.din}</p>}
               <p>Professional Fee: ₹{feeBreakdown.professional}</p>
               <p>GST (18%): ₹{feeBreakdown.gst.toFixed(2)}</p>
               <p className="font-bold text-lg mt-2">

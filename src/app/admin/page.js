@@ -12,7 +12,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 const entityTypes = ["share-capital", "no-share-capital", "section-8"];
 const logicTypes = ["number", "percentage", "slab", "conditional", "tiered"];
@@ -33,6 +33,7 @@ export default function AdminPage() {
   });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [otherFees, setOtherFees] = useState([]);
 
   const fetchState = async (state) => {
     setLoading(true);
@@ -53,7 +54,7 @@ export default function AdminPage() {
     if (!selectedState) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/state/${selectedState}`, {
+      const res = await fetch(`/api/admin/state/${selectedState}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -61,7 +62,7 @@ export default function AdminPage() {
         body: JSON.stringify({ types: data }),
       });
       if (!res.ok) throw new Error("Failed to update");
-      toast.success("Rates updated successfully");
+      toast("Rates updated successfully");
     } catch (e) {
       console.error("Save error:", e);
       toast.error("Error while saving");
@@ -70,13 +71,34 @@ export default function AdminPage() {
     }
   };
 
+  const saveGlobalFees = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/admin/others_fee", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(otherFees),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to save global fees");
+      toast(json.message || "Global fees saved successfully");
+    } catch (error) {
+      toast.error(error.message || "Error saving global fees");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchStates = async () => {
       try {
-        const res = await fetch("/api/state");
+        const res = await fetch("/api/");
         if (!res.ok) throw new Error("Failed to fetch state list");
         const json = await res.json();
-        setStateList(json.map((s) => s.state));
+        setStateList(json.stampDutyRate.map((s) => s.state));
+        setOtherFees(json.otherFee || []);
       } catch (e) {
         console.error("Error fetching state list:", e);
         toast.error("Failed to load states");
@@ -271,7 +293,9 @@ export default function AdminPage() {
 
   return (
     <div className="max-w-5xl mx-auto p-4 space-y-6">
-      <h1 className="text-2xl font-bold">Admin Panel - MCA Fee Manager</h1>
+      <h1 className="text-2xl font-serif font-light">
+        Admin Panel - MCA Fee Manager
+      </h1>
 
       <div className="flex gap-4">
         <Select
@@ -300,7 +324,7 @@ export default function AdminPage() {
       {selectedState && !loading && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {entityTypes.map((type) => (
-            <Card key={type} className="p-2">
+            <Card key={type} className="p-4 py-6">
               <CardContent className="space-y-2">
                 <h3 className="text-lg font-semibold capitalize">
                   {type.replace("-", " ")}
@@ -353,6 +377,37 @@ export default function AdminPage() {
           ))}
         </div>
       )}
+
+      <div className="space-y-4 mt-14">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-serif font-light">Global Fee</h2>
+          <Button onClick={saveGlobalFees}>Save</Button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {otherFees.map((fee) => (
+            <Card key={fee?.name} className="p-4 py-6">
+              <CardContent className="space-y-2">
+                <h3 className="text-lg font-semibold">{fee.name}</h3>
+                <div className="space-y-2">
+                  <Input
+                    type="number"
+                    value={fee.fee ?? 0}
+                    onChange={(e) =>
+                      setOtherFees((prev) =>
+                        prev.map((f) =>
+                          f.name === fee.name
+                            ? { ...f, fee: Number(e.target.value) }
+                            : f
+                        )
+                      )
+                    }
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
 
       {loading && (
         <p className="text-muted-foreground">Loading state data...</p>

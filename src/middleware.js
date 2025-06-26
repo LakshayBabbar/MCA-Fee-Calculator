@@ -8,11 +8,19 @@ export async function middleware(request) {
     authToken,
     process.env.ACCESS_SECRET_KEY
   );
-  if (error && pathname.startsWith("/admin")) {
-    return NextResponse.redirect(new URL("/auth", request.url));
+  if (
+    error &&
+    pathname.startsWith("/admin") &&
+    !pathname.startsWith("/admin/auth")
+  ) {
+    return NextResponse.redirect(new URL("/admin/auth", request.url));
   }
-  if (pathname.startsWith("/auth") && payload) {
+  if (pathname.startsWith("/admin/auth") && payload) {
     return NextResponse.redirect(new URL("/admin", request.url));
+  }
+
+  if (pathname.startsWith("/api/admin") && !payload) {
+    return NextResponse.redirect(new URL("/admin/auth", request.url));
   }
 
   return NextResponse.next();
