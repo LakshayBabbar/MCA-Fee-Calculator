@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -10,181 +11,207 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
+
 import { calculateAOAFee } from "@/lib/calculateFees";
-import { getStampDuty } from "@/lib/loadStampDutyRates";
 import { entityOptions, entityTypeMap } from "@/lib/entityTypeMap";
 
-const states = Object.keys(require("@/data/stampDutyRates.json"));
 const PAN_FEE = 66;
 const TAN_FEE = 65;
+const DIN_FEE_PER_DIRECTOR = 500;
+const GST_RATE = 0.18;
 
 export default function FeeCalculator() {
-  const [state, setState] = useState("Delhi");
-  const [entity, setEntity] = useState("Private Limited Company");
-  const [capital, setCapital] = useState(100000);
+  const [mcaData, setMcaData] = useState([]);
+  const [states, setStates] = useState([]);
+  const [selectedState, setSelectedState] = useState("Delhi");
+  const [selectedEntity, setSelectedEntity] = useState(
+    "Private Limited Company"
+  );
+  const [authorizedCapital, setAuthorizedCapital] = useState(100000);
   const [includePAN, setIncludePAN] = useState(true);
   const [includeTAN, setIncludeTAN] = useState(true);
   const [includeDIN, setIncludeDIN] = useState(false);
   const [numDirectors, setNumDirectors] = useState(2);
+  const [professionalFee, setProfessionalFee] = useState(5000);
 
-  const [fees, setFees] = useState({
-    spice: 0,
-    moa: 0,
-    aoa: 0,
-    pan: 0,
-    tan: 0,
-    din: 0,
-    professional: 5000,
-    gst: 0,
-    total: 0,
-  });
+  const fetchStates = async () => {
+    try {
+      const res = await fetch("/api/state");
+      if (!res.ok) throw new Error("Failed to fetch state list");
+      const json = await res.json();
+      setMcaData(json);
+      setStates(json.map((s) => s.state));
+    } catch (error) {
+      console.error("State Fetch Error:", error);
+      toast.error("Unable to load states. Please try again.");
+    }
+  };
 
   useEffect(() => {
-    const mappedType = entityTypeMap[entity];
-    const data = getStampDuty(state, mappedType);
-    if (!data) return;
+    fetchStates();
+  }, []);
 
-    const fallbackType =
-      mappedType === "section-8"
-        ? capital > 0
-          ? "share-capital"
-          : "no-share-capital"
-        : mappedType;
+  const selectedData = useMemo(() => {
+    const mappedType = entityTypeMap[selectedEntity];
+    const stateData = mcaData.find((s) => s.state === selectedState);
+    return stateData?.types?.[mappedType] ?? null;
+  }, [mcaData, selectedState, selectedEntity]);
 
-    const fallbackData = getStampDuty(state, fallbackType);
+  const feeBreakdown = useMemo(() => {
+    if (!selectedData) return null;
 
-    const aoaFee = calculateAOAFee(
-      data.aoa,
-      capital,
-      data.spice,
-      fallbackData?.aoa
-    );
-    const dinFee = includeDIN ? numDirectors * 500 : 0;
+    const aoaFee = calculateAOAFee(selectedData.aoa, authorizedCapital);
+    const dinFee = includeDIN ? numDirectors * DIN_FEE_PER_DIRECTOR : 0;
     const panFee = includePAN ? PAN_FEE : 0;
     const tanFee = includeTAN ? TAN_FEE : 0;
-    const prof = 5000;
-    const gst = 0.18 * (prof + dinFee + panFee + tanFee);
+    const gst = GST_RATE * (professionalFee + dinFee + panFee + tanFee);
     const total =
-      data.spice + data.moa + aoaFee + prof + panFee + tanFee + dinFee + gst;
+      selectedData.spice +
+      selectedData.moa +
+      aoaFee +
+      dinFee +
+      panFee +
+      tanFee +
+      professionalFee +
+      gst;
 
-    setFees({
-      spice: data.spice,
-      moa: data.moa,
+    return {
+      spice: selectedData.spice,
+      moa: selectedData.moa,
       aoa: aoaFee,
       din: dinFee,
       pan: panFee,
       tan: tanFee,
-      professional: prof,
+      professional: professionalFee,
       gst,
       total,
-    });
+    };
   }, [
-    state,
-    entity,
-    capital,
+    selectedData,
+    authorizedCapital,
     includeDIN,
     numDirectors,
     includePAN,
     includeTAN,
+    professionalFee,
   ]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen sm:bg-gray-50">
-      <div className="space-y-4 p-6 sm:drop-shadow-lg sm:rounded-2xl bg-white my-6">
-        <h2 className="mb-4 text-3xl text-center font-serif font-light">
+    <div className="min-h-screen flex items-center justify-center bg-muted px-4">
+      <div className="w-full max-w-xl bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-md space-y-6">
+        <h2 className="text-3xl text-center font-serif font-light">
           MCA Incorporation Fee Calculator
         </h2>
 
-        <div className="space-y-2">
-          <Label>State</Label>
-          <Select value={state} onValueChange={setState}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select state" />
-            </SelectTrigger>
-            <SelectContent>
-              {states.map((st) => (
-                <SelectItem key={st} value={st}>
-                  {st}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Entity Type</Label>
-          <Select value={entity} onValueChange={setEntity}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {entityOptions.map((e) => (
-                <SelectItem key={e} value={e}>
-                  {e}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {entity !== "Section 8 Company" && (
+        <div className="grid gap-4">
           <div className="space-y-2">
-            <Label>Authorized Capital (₹)</Label>
+            <Label>State</Label>
+            <Select value={selectedState} onValueChange={setSelectedState}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a state" />
+              </SelectTrigger>
+              <SelectContent>
+                {states.map((state) => (
+                  <SelectItem key={state} value={state}>
+                    {state}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Entity Type</Label>
+            <Select value={selectedEntity} onValueChange={setSelectedEntity}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select entity type" />
+              </SelectTrigger>
+              <SelectContent>
+                {entityOptions.map((entity) => (
+                  <SelectItem key={entity} value={entity}>
+                    {entity}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {selectedEntity !== "Section 8 Company" && (
+            <div className="space-y-2">
+              <Label>Authorized Capital (₹)</Label>
+              <Input
+                type="number"
+                value={authorizedCapital}
+                onChange={(e) => setAuthorizedCapital(Number(e.target.value))}
+                min={1000}
+              />
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label>Professional Fee (₹)</Label>
             <Input
               type="number"
-              value={capital}
-              onChange={(e) => setCapital(Number(e.target.value))}
+              value={professionalFee}
+              onChange={(e) => setProfessionalFee(Number(e.target.value))}
+              min={0}
             />
           </div>
-        )}
 
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={includePAN}
-            onCheckedChange={(checked) => setIncludePAN(Boolean(checked))}
-          />{" "}
-          <Label>Include PAN (₹{PAN_FEE})</Label>
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                checked={includePAN}
+                onCheckedChange={(val) => setIncludePAN(Boolean(val))}
+              />
+              <Label>Include PAN (₹{PAN_FEE})</Label>
+            </div>
 
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={includeTAN}
-            onCheckedChange={(checked) => setIncludeTAN(Boolean(checked))}
-          />{" "}
-          <Label>Include TAN (₹{TAN_FEE})</Label>
-        </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                checked={includeTAN}
+                onCheckedChange={(val) => setIncludeTAN(Boolean(val))}
+              />
+              <Label>Include TAN (₹{TAN_FEE})</Label>
+            </div>
 
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={includeDIN}
-            onCheckedChange={(checked) => setIncludeDIN(Boolean(checked))}
-          />{" "}
-          <Label>DIN (₹500 per director)</Label>
-        </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                checked={includeDIN}
+                onCheckedChange={(val) => setIncludeDIN(Boolean(val))}
+              />
+              <Label>DIN (₹{DIN_FEE_PER_DIRECTOR}/director)</Label>
+            </div>
 
-        {includeDIN && (
-          <div className="space-y-2">
-            <Label>Number of Directors</Label>
-            <Input
-              type="number"
-              value={numDirectors}
-              onChange={(e) => setNumDirectors(Number(e.target.value))}
-            />
+            {includeDIN && (
+              <div className="space-y-2 col-span-full">
+                <Label>Number of Directors</Label>
+                <Input
+                  type="number"
+                  value={numDirectors}
+                  onChange={(e) => setNumDirectors(Number(e.target.value))}
+                  min={1}
+                />
+              </div>
+            )}
           </div>
-        )}
 
-        <div className="mt-6 space-y-1 border-t pt-4">
-          <p>SPICe: ₹{fees.spice}</p>
-          <p>MOA: ₹{fees.moa}</p>
-          <p>AOA: ₹{fees.aoa.toFixed(2)}</p>
-          {includePAN && <p>PAN: ₹{fees.pan}</p>}
-          {includeTAN && <p>TAN: ₹{fees.tan}</p>}
-          {includeDIN && <p>DIN: ₹{fees.din}</p>}
-          <p>Professional Fee: ₹{fees.professional}</p>
-          <p>GST (18%): ₹{fees.gst.toFixed(2)}</p>
-          <p className="font-bold text-lg">
-            Total Estimated Fee: ₹{fees.total.toFixed(2)}
-          </p>
+          {feeBreakdown && (
+            <div className="mt-6 space-y-1 border-t pt-4 text-sm text-gray-700 dark:text-gray-200">
+              <p>SPICe: ₹{feeBreakdown.spice}</p>
+              <p>MOA: ₹{feeBreakdown.moa}</p>
+              <p>AOA: ₹{feeBreakdown.aoa.toFixed(2)}</p>
+              {includePAN && <p>PAN: ₹{feeBreakdown.pan}</p>}
+              {includeTAN && <p>TAN: ₹{feeBreakdown.tan}</p>}
+              {includeDIN && <p>DIN: ₹{feeBreakdown.din}</p>}
+              <p>Professional Fee: ₹{feeBreakdown.professional}</p>
+              <p>GST (18%): ₹{feeBreakdown.gst.toFixed(2)}</p>
+              <p className="font-bold text-lg mt-2">
+                Total Estimated Fee: ₹{feeBreakdown.total.toFixed(2)}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -101,7 +101,10 @@
       "spice": 20,
       "moa": 500,
       "aoa": {
-        "type": "same_as_base"
+        "type": "percentage",
+        "rate": 0.0015,
+        "min": 1000,
+        "max": 500000
       }
     }
   },
@@ -125,7 +128,10 @@
       "spice": 20,
       "moa": 500,
       "aoa": {
-        "type": "same_as_base"
+        "type": "percentage",
+        "rate": 0.0015,
+        "min": 1000,
+        "max": 500000
       }
     }
   },
@@ -379,7 +385,21 @@
       "spice": 25,
       "moa": 1000,
       "aoa": {
-        "type": "same_as_base"
+        "type": "tiered",
+        "tiers": [
+          {
+            "max": 1000000,
+            "rate": 2000
+          },
+          {
+            "max": 2500000,
+            "rate": 5000
+          },
+          {
+            "above": 2500000,
+            "rate": 0.005
+          }
+        ]
       }
     }
   },
@@ -420,7 +440,10 @@
       "spice": 50,
       "moa": 2500,
       "aoa": {
-        "type": "same_as_base"
+        "type": "percentage",
+        "rate": 0.0015,
+        "min": 5000,
+        "max": 2500000
       }
     }
   },

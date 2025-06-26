@@ -1,10 +1,5 @@
-export const calculateAOAFee = (aoa, capital, baseSpice, fallbackAOA) => {
+export const calculateAOAFee = (aoa, capital) => {
   if (typeof aoa === "number") return aoa;
-
-  if (aoa.type === "same_as_base") {
-    if (!fallbackAOA) return 0;
-    return calculateAOAFee(fallbackAOA, capital, baseSpice);
-  }
 
   switch (aoa.type) {
     case "percentage":

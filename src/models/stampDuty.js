@@ -10,12 +10,18 @@ const aoaSchema = new mongoose.Schema(
     condition: Number,
     below: Number,
     above: Number,
-    tiers: [{ max: Number, rate: Number, above: Number }],
+    tiers: [
+      {
+        max: Number,
+        rate: Number,
+        above: Number,
+      },
+    ],
   },
   { _id: false }
 );
 
-const companyTypeSchema = new mongoose.Schema(
+const feeDetailSchema = new mongoose.Schema(
   {
     spice: Number,
     moa: mongoose.Schema.Types.Mixed,
@@ -24,15 +30,20 @@ const companyTypeSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const stampDutySchema = new mongoose.Schema(
+const stampDutyRateSchema = new mongoose.Schema(
   {
-    state: { type: String, unique: true },
-    "share-capital": companyTypeSchema,
-    "no-share-capital": companyTypeSchema,
-    "section-8": companyTypeSchema,
+    state: { type: String, required: true, unique: true },
+    types: {
+      "share-capital": feeDetailSchema,
+      "no-share-capital": feeDetailSchema,
+      "section-8": feeDetailSchema,
+    },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.StampDuty ||
-  mongoose.model("StampDuty", stampDutySchema);
+const StampDutyRate =
+  mongoose.models.StampDutyRate ||
+  mongoose.model("StampDutyRate", stampDutyRateSchema);
+
+export default StampDutyRate;
