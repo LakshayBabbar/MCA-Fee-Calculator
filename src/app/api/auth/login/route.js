@@ -1,6 +1,7 @@
 import User from "@/models/user";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { generateToken } from "@/lib/auth";
 
 export const POST = async (req, res) => {
   try {
@@ -11,7 +12,8 @@ export const POST = async (req, res) => {
         { status: 400 }
       );
     }
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
+    console.log(user);
     if (!user) {
       return NextResponse.json(
         { error: "Invalid email or password" },

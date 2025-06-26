@@ -8,13 +8,14 @@ export async function middleware(request) {
     authToken,
     process.env.ACCESS_SECRET_KEY
   );
-  if (pathname.startsWith("/auth") || pathname.startsWith("/")) {
-    return NextResponse.next();
-  }
   if (error && pathname.startsWith("/admin")) {
     return NextResponse.redirect(new URL("/auth", request.url));
   }
-  return NextResponse.redirect(new URL("/", request.url));
+  if (pathname.startsWith("/auth") && payload) {
+    return NextResponse.redirect(new URL("/admin", request.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {

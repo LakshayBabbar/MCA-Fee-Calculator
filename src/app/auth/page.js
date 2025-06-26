@@ -36,13 +36,14 @@ export default function LoginPage() {
         body: JSON.stringify(form),
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        throw new Error("Login failed. Please check your credentials.");
+        throw new Error(
+          data.error || "Login failed. Please check your credentials."
+        );
       }
 
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
-      toast.success("Login successful!");
+      toast.success(data.message || "Login successful!");
       router.push("/admin");
     } catch (error) {
       toast.error(error.message || "Login failed. Please try again.");
