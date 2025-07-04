@@ -7,7 +7,7 @@ export const GET = async (req, res) => {
   try {
     await connectToDb();
     const otherFee = await Other.find();
-    const data = await StampDutyRate.find().lean();
+    const data = await StampDutyRate.find().sort({ state: 1 }).lean();
     return NextResponse.json(
       {
         otherFee: otherFee,

@@ -26,18 +26,7 @@ export default function FeeCalculator() {
     "Private Limited Company"
   );
   const [authorizedCapital, setAuthorizedCapital] = useState(100000);
-  const [includePAN, setIncludePAN] = useState({
-    checked: false,
-    fee: 0,
-  });
-  const [includeTAN, setIncludeTAN] = useState({
-    checked: false,
-    fee: 0,
-  });
-  const [includeDIN, setIncludeDIN] = useState({
-    checked: false,
-    fee: 0,
-  });
+  const [otherFees, setOtherFees] = useState([]);
   const [numDirectors, setNumDirectors] = useState(2);
   const [professionalFee, setProfessionalFee] = useState(5000);
 
@@ -46,20 +35,15 @@ export default function FeeCalculator() {
       const res = await fetch("/api/");
       if (!res.ok) throw new Error("Failed to fetch state list");
       const json = await res.json();
+
       setMcaData(json.stampDutyRate);
       setStates(json.stampDutyRate.map((s) => s.state));
 
-      json.otherFee.forEach((fee) => {
-        if (fee.name === "pan") {
-          setIncludePAN((prev) => ({ ...prev, fee: fee.fee }));
-        }
-        if (fee.name === "tan") {
-          setIncludeTAN((prev) => ({ ...prev, fee: fee.fee }));
-        }
-        if (fee.name === "din") {
-          setIncludeDIN((prev) => ({ ...prev, fee: fee.fee }));
-        }
-      });
+      const feesWithState = json.otherFee.map((fee) => ({
+        ...fee,
+        checked: false,
+      }));
+      setOtherFees(feesWithState);
     } catch (error) {
       console.error("State Fetch Error:", error);
       toast.error("Unable to load states. Please try again.");
@@ -80,17 +64,25 @@ export default function FeeCalculator() {
     if (!selectedData) return null;
 
     const aoaFee = calculateAOAFee(selectedData.aoa, authorizedCapital);
-    const dinFee = includeDIN.checked ? numDirectors * includeDIN.fee : 0;
-    const panFee = includePAN.checked ? includePAN.fee : 0;
-    const tanFee = includeTAN.checked ? includeTAN.fee : 0;
     const gst = GST_RATE * professionalFee;
+
+    let otherFeeTotal = 0;
+    let otherFeeDetails = {};
+
+    otherFees.forEach((fee) => {
+      if (fee.checked) {
+        const feeAmount =
+          fee.name.toLowerCase() === "din" ? numDirectors * fee.fee : fee.fee;
+        otherFeeTotal += feeAmount;
+        otherFeeDetails[fee.name] = feeAmount;
+      }
+    });
+
     const total =
       selectedData.spice +
       selectedData.moa +
       aoaFee +
-      dinFee +
-      panFee +
-      tanFee +
+      otherFeeTotal +
       professionalFee +
       gst;
 
@@ -98,9 +90,7 @@ export default function FeeCalculator() {
       spice: selectedData.spice,
       moa: selectedData.moa,
       aoa: aoaFee,
-      din: dinFee,
-      pan: panFee,
-      tan: tanFee,
+      otherFees: otherFeeDetails,
       professional: professionalFee,
       gst,
       total,
@@ -108,11 +98,9 @@ export default function FeeCalculator() {
   }, [
     selectedData,
     authorizedCapital,
-    includeDIN,
-    numDirectors,
-    includePAN,
-    includeTAN,
     professionalFee,
+    otherFees,
+    numDirectors,
   ]);
 
   return (
@@ -178,46 +166,29 @@ export default function FeeCalculator() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                checked={includePAN.checked}
-                onCheckedChange={(val) =>
-                  setIncludePAN((prev) => ({
-                    ...prev,
-                    checked: Boolean(val),
-                  }))
-                }
-              />
-              <Label>Include PAN (₹{includePAN.fee})</Label>
-            </div>
+            {otherFees.map((fee, index) => (
+              <div key={fee.name} className="flex items-center space-x-2">
+                <Checkbox
+                  checked={fee.checked}
+                  onCheckedChange={(val) => {
+                    const updated = [...otherFees];
+                    updated[index].checked = Boolean(val);
+                    setOtherFees(updated);
+                  }}
+                />
+                <Label>
+                  {fee.name.toUpperCase()} (₹
+                  {fee.name.toLowerCase() === "din"
+                    ? `${fee.fee}/director`
+                    : fee.fee}
+                  )
+                </Label>
+              </div>
+            ))}
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                checked={includeTAN.checked}
-                onCheckedChange={(val) =>
-                  setIncludeTAN((prev) => ({
-                    ...prev,
-                    checked: Boolean(val),
-                  }))
-                }
-              />
-              <Label>Include TAN (₹{includeTAN.fee})</Label>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                checked={includeDIN.checked}
-                onCheckedChange={(val) =>
-                  setIncludeDIN((prev) => ({
-                    ...prev,
-                    checked: Boolean(val),
-                  }))
-                }
-              />
-              <Label>DIN (₹{includeDIN.fee}/director)</Label>
-            </div>
-
-            {includeDIN.checked && (
+            {otherFees.find(
+              (f) => f.name.toLowerCase() === "din" && f.checked
+            ) && (
               <div className="space-y-2 col-span-full">
                 <Label>Number of Directors</Label>
                 <Input
@@ -235,9 +206,11 @@ export default function FeeCalculator() {
               <p>SPICe: ₹{feeBreakdown.spice}</p>
               <p>MOA: ₹{feeBreakdown.moa}</p>
               <p>AOA: ₹{feeBreakdown.aoa.toFixed(2)}</p>
-              {includePAN.checked && <p>PAN: ₹{feeBreakdown.pan}</p>}
-              {includeTAN.checked && <p>TAN: ₹{feeBreakdown.tan}</p>}
-              {includeDIN.checked && <p>DIN: ₹{feeBreakdown.din}</p>}
+              {Object.entries(feeBreakdown.otherFees).map(([name, value]) => (
+                <p key={name}>
+                  {name.toUpperCase()}: ₹{value}
+                </p>
+              ))}
               <p>Professional Fee: ₹{feeBreakdown.professional}</p>
               <p>GST (18%): ₹{feeBreakdown.gst.toFixed(2)}</p>
               <p className="font-bold text-lg mt-2">
