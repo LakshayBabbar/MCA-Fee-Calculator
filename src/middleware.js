@@ -6,6 +6,19 @@ const allowedOrigins = ["http://localhost:5173", "https://crm.wishlegals.com"];
 export async function middleware(request) {
   const origin = request.headers.get("origin");
 
+  if (request.method === "OPTIONS") {
+    return new NextResponse(null, {
+      status: 200,
+      headers: {
+        "Access-Control-Allow-Origin": origin || "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Date, X-Api-Version",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Max-Age": "86400"
+      },
+    });
+  }
+
   if (origin && !allowedOrigins.includes(origin)) {
     return new Response("CORS error: origin not allowed", {
       status: 403,
@@ -18,10 +31,11 @@ export async function middleware(request) {
     response.headers.set("Access-Control-Allow-Origin", origin);
     response.headers.set(
       "Access-Control-Allow-Methods",
-      "GET, POST, PUT, DELETE"
+      "GET, POST, PUT, DELETE, OPTIONS"
     );
     response.headers.set("Access-Control-Allow-Headers", "Content-Type");
     response.headers.set("Access-Control-Allow-Credentials", "true");
+    
   }
 
   const pathname = request.nextUrl.pathname;
